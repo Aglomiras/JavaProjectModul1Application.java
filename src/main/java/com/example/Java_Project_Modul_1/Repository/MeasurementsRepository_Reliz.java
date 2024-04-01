@@ -6,26 +6,26 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.List;
-@Repository
-@Transactional
+@Repository //Аннотация, говорящая, что данный класс принадлежит уровню Repository
+@Transactional //Аннотация, говорящая, что в данном классе производится транзакция
 public class MeasurementsRepository_Reliz implements MeasurementsRepository {
-    @PersistenceContext
-    private EntityManager entityManager;
-    @Override
-    public void addDatabase(Measurement_Current measurement_current) {
-        if (measurement_current.getId() == 0) {
-            entityManager.persist(measurement_current);
-        } else {
-            entityManager.merge(measurement_current);
+    @PersistenceContext //Аннотация, которая внедряет прокси, который выполняет открытие и закрытие EntityManager автоматически
+    private EntityManager entityManager; //Создание сущности
+    @Override //Аннотация, которая проверяет, переопределен ли метод. Вызывает ошибку компиляции, если метод не найден в родительском классе
+    public void addDatabase(Measurement_Current measurement_current) { //Метод, который добавляет данные в базу данных
+        if (measurement_current.getId() == 0) { //Если в базе данных нет данных, то выгружает их
+            entityManager.persist(measurement_current); //Использование метода, для выгрузки даннвх а базу данных
+        } else { //Если в базе данных, есть данные, то перезаписывает их
+            entityManager.merge(measurement_current); //Использование метода, для перезаписи данных в базе данных
         }
     }
-    @Override
-    public List<Measurement_Current> List_Measurement(int startIndex, int endIndex) {
+    @Override //Аннотация, которая проверяет, переопределен ли метод. Вызывает ошибку компиляции, если метод не найден в родительском классе
+    public List<Measurement_Current> List_Measurement(int startIndex, int endIndex) { //Метод, принимающий начало и конец проверяемого интервала
         List<Measurement_Current> measurement_current_List = entityManager
-                .createQuery("We take measurements from a given range (startIndex <= x <= endIndex)", Measurement_Current.class)
+                .createQuery("Select m from Measurement_Current m where m.Id >= :startIndex and m.Id <= :endIndex", Measurement_Current.class)
                 .setParameter("startIndex", startIndex)
                 .setParameter("endIndex", endIndex)
-                .getResultList();
-        return measurement_current_List;
+                .getResultList(); //Перевод значений в лист
+        return measurement_current_List; //Возвращает значения токов, измеренных за определенный интервал времени
     }
 }
